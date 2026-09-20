@@ -21,6 +21,7 @@ from conversations import (
     add_message,
     get_conversations,
     get_messages,
+    conversation_exists,
 )
 
 app = Flask(__name__)
@@ -165,7 +166,7 @@ def api_create_conversation():
         "id": conversation_id,
         "title": title
     }), 201
-    
+
 # ============================================================
 # CHAT
 # ============================================================
@@ -186,15 +187,47 @@ def ask():
         "model",
         Config.DEFAULT_MODEL
     )
+    conversation_id = data.get("conversation_id")
+
+    if conversation_id is not None:
+        user_message = messages[-1]
+
+        if user_message.get("role") != "user":
+            return jsonify({
+                "error": "Le dernier message doit être un message utilisateur"
+            }), 400
+
+        add_message(
+            conversation_id,
+            "user",
+            user_message.get("content", ""),
+            model
+        )
+        
+        # =========================
+        # Validation modèle
+        # =========================
+
+        if model not in Config.MODELS:
+            return jsonify({
+                "error": "Modèle non autorisé"
+            }), 400
 
     # =========================
-    # Validation modèle
+    # Validation conversation
     # =========================
 
-    if model not in Config.MODELS:
-        return jsonify({
-            "error": "Modèle non autorisé"
-        }), 400
+    if conversation_id is not None:
+        if not isinstance(conversation_id, int) or conversation_id <= 0:
+            return jsonify({
+                "error": "conversation_id invalide"
+            }), 400
+            
+    if conversation_id is not None:
+        if not conversation_exists(conversation_id):
+            return jsonify({
+                "error": "Conversation introuvable"
+            }), 404
 
     # =========================
     # Validation messages
@@ -242,49 +275,41 @@ def ask():
     # =========================
     # Génération streaming
     # =========================
-
+    
     def generate():
+        full_response = []
 
         try:
-
             for data in ollama.chat(
                 model=model,
                 messages=messages,
                 temperature=Config.TEMPERATURE
             ):
-
-                # -------------------------
-                # Texte généré
-                # -------------------------
-
-                content = data.get(
-                    "message",
-                    {}
-                ).get(
-                    "content",
-                    ""
-                )
+                content = data.get("message", {}).get("content", "")
 
                 if content:
+                    full_response.append(content)
 
                     yield json.dumps(
-                        {
-                            "type": "content",
-                            "content": content
-                        },
+                        {"type": "content", "content": content},
                         ensure_ascii=False
                     ) + "\n"
 
-                # -------------------------
-                # Fin de génération
-                # -------------------------
-
                 if data.get("done"):
 
-                    stats = build_stats(
-                        model,
-                        data
-                    )
+                    # =========================
+                    # Persistance réponse assistant
+                    # =========================
+
+                    if conversation_id is not None:
+                        add_message(
+                            conversation_id,
+                            "assistant",
+                            "".join(full_response),
+                            model
+                        )
+
+                    stats = build_stats(model, data)
 
                     print(
                         f"[STATS] "
@@ -303,19 +328,13 @@ def ask():
                     ) + "\n"
 
         except Exception as e:
-
-            print(
-                f"[ERROR] {type(e).__name__}: {e}"
-            )
+            print(f"[ERROR] {type(e).__name__}: {e}")
 
             yield json.dumps(
-                {
-                    "type": "error",
-                    "error": str(e)
-                },
+                {"type": "error", "error": str(e)},
                 ensure_ascii=False
             ) + "\n"
-
+            
     return Response(
         generate(),
         mimetype="application/x-ndjson",

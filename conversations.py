@@ -44,9 +44,10 @@ def init_db():
             )
         """)
 
-
 def create_conversation(title="Nouvelle conversation"):
+
     with get_db() as conn:
+
         cursor = conn.execute(
             """
             INSERT INTO conversations (title)
@@ -54,9 +55,25 @@ def create_conversation(title="Nouvelle conversation"):
             """,
             (title,)
         )
+
         return cursor.lastrowid
 
 
+def conversation_exists(conversation_id):
+
+    with get_db() as conn:
+
+        row = conn.execute(
+            """
+            SELECT 1
+            FROM conversations
+            WHERE id = ?
+            """,
+            (conversation_id,)
+        ).fetchone()
+
+        return row is not None
+        
 def add_message(conversation_id, role, content, model=None):
     with get_db() as conn:
         cursor = conn.execute(
