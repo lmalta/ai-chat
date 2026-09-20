@@ -1,4 +1,5 @@
 let messages = [];
+let conversationId = null;
 
 
 const chat = document.getElementById("chat");
@@ -111,6 +112,49 @@ async function sendMessage() {
         modelSelect.value;
 
 
+    // =========================
+    // Créer une conversation
+    // si nécessaire
+    // =========================
+
+    if (conversationId === null) {
+
+        const conversationResponse =
+            await fetch(
+                "/api/conversations",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        title: prompt.substring(0, 50)
+                    })
+                }
+            );
+
+
+        if (!conversationResponse.ok) {
+
+            throw new Error(
+                "Impossible de créer la conversation"
+            );
+
+        }
+
+
+        const conversation =
+            await conversationResponse.json();
+
+
+        conversationId =
+            conversation.id;
+    }
+
+
     promptInput.value = "";
 
     sendButton.disabled = true;
@@ -150,7 +194,9 @@ async function sendMessage() {
 
                     body: JSON.stringify({
                         messages: messages,
-                        model: model
+                        model: model,
+                        conversation_id:
+                            conversationId
                     })
                 }
             );
@@ -247,8 +293,9 @@ async function sendMessage() {
         }
 
 
-        // Traiter le dernier paquet
-        // éventuellement resté dans buffer
+        // =========================
+        // Dernier paquet éventuel
+        // =========================
 
         if (buffer.trim()) {
 
@@ -281,11 +328,19 @@ async function sendMessage() {
         }
 
 
+        // =========================
+        // Ajouter réponse à l'historique
+        // =========================
+
         messages.push({
             role: "assistant",
             content: fullResponse
         });
 
+
+        // =========================
+        // Afficher statistiques
+        // =========================
 
         if (
             showStatsCheckbox.checked &&
@@ -310,7 +365,6 @@ async function sendMessage() {
         promptInput.focus();
     }
 }
-
 
 // =========================
 // Nouvelle conversation
