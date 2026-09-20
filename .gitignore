@@ -1,0 +1,22 @@
+# Environnement Python
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+
+# Sauvegardes / fichiers temporaires
+*~
+*.swp
+*.bak
+
+# Configurations système locales
+conf/etc/

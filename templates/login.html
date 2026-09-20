@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Connexion — Mon IA locale</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-box">
+
+        <h1>🤖 Mon IA locale</h1>
+
+        <h2>Connexion</h2>
+
+        {% if error %}
+            <div class="login-error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label for="username">Utilisateur</label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <button type="submit">
+                Se connecter
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
