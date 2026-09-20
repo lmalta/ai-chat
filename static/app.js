@@ -1,5 +1,6 @@
 let messages = [];
 let conversationId = null;
+let abortController = null;
 
 
 const chat = document.getElementById("chat");
@@ -7,7 +8,7 @@ const promptInput = document.getElementById("prompt");
 const modelSelect = document.getElementById("model");
 const sendButton = document.getElementById("sendButton");
 const clearButton = document.getElementById("clearButton");
-
+const stopButton = document.getElementById("stopButton");
 const showStatsCheckbox =
     document.getElementById("showStats");
 
@@ -24,20 +25,54 @@ const closeStats =
 // =========================
 // Affichage message
 // =========================
-
 function addMessage(role, content) {
 
     const div = document.createElement("div");
 
     div.className = "message " + role;
 
-    div.innerText = content;
+    const contentDiv =
+        document.createElement("div");
+
+    contentDiv.className =
+        "message-content";
+
+    contentDiv.innerHTML =
+        marked.parse(content);
+
+    div.appendChild(contentDiv);
+
+    if (role === "assistant") {
+
+        const copyButton =
+            document.createElement("button");
+
+        copyButton.innerText =
+            "📋 Copier";
+
+        copyButton.className =
+            "copy-button";
+
+        copyButton.addEventListener(
+            "click",
+            function() {
+
+                navigator.clipboard.writeText(
+                    contentDiv.innerText
+                );
+
+            }
+        );
+
+        div.appendChild(copyButton);
+    }
 
     chat.appendChild(div);
 
-    chat.scrollTop = chat.scrollHeight;
+    chat.scrollTop =
+        chat.scrollHeight;
 
-    return div;
+    return contentDiv;
 }
 
 // =========================
@@ -347,16 +382,16 @@ async function loadConversation(id) {
 
 async function sendMessage() {
 
-    const prompt =
-        promptInput.value.trim();
+    const prompt = promptInput.value.trim();
 
     if (!prompt) {
         return;
     }
 
 
-    const model =
-        modelSelect.value;
+    abortController = new AbortController();
+
+    const model = modelSelect.value;
 
 
     // =========================
@@ -407,6 +442,7 @@ async function sendMessage() {
     promptInput.value = "";
 
     sendButton.disabled = true;
+    stopButton.disabled = false;
 
 
     addMessage(
@@ -431,16 +467,14 @@ async function sendMessage() {
     try {
 
         const response =
-            await fetch(
-                "/ask",
-                {
+            await fetch("/ask", {
                     method: "POST",
 
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
-
+                    signal: abortController.signal,
                     body: JSON.stringify({
                         messages: messages,
                         model: model,
@@ -518,8 +552,8 @@ async function sendMessage() {
                     fullResponse +=
                         data.content;
 
-                    assistantMessage.innerText =
-                        fullResponse;
+                    assistantMessage.innerHTML =
+                        marked.parse(fullResponse);
 
                     chat.scrollTop =
                         chat.scrollHeight;
@@ -557,8 +591,8 @@ async function sendMessage() {
                 fullResponse +=
                     data.content;
 
-                assistantMessage.innerText =
-                    fullResponse;
+            assistantMessage.innerHTML =
+                marked.parse(fullResponse);
             }
 
 
@@ -599,17 +633,19 @@ async function sendMessage() {
             displayStats(stats);
         }
 
+    } catch (error) {
+    if (error.name === "AbortError") {
+        return;
     }
-    catch (error) {
 
-        assistantMessage.innerText =
-            "❌ Erreur : " +
-            error.message;
-
-    }
+    assistantMessage.innerText =
+        "❌ Erreur : " +
+        error.message;
+}
     finally {
 
         sendButton.disabled = false;
+        stopButton.disabled = true;
 
         promptInput.focus();
     }
@@ -640,6 +676,22 @@ function closeStatsModal() {
     statsModal.classList.add("hidden");
 }
 
+stopButton.addEventListener("click", async function() {
+    if (abortController) {
+        abortController.abort();
+    }
+
+    try {
+        await fetch("/cancel", {
+            method: "POST"
+        });
+    } catch (error) {
+        console.error(
+            "Erreur lors de l'annulation :",
+            error
+        );
+    }
+});
 
 sendButton.addEventListener(
     "click",

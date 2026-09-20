@@ -127,6 +127,17 @@ def index():
 # HEALTH CHECK
 # ============================================================
 
+
+@app.route("/cancel", methods=["POST"])
+@login_required
+def cancel_generation():
+    cancelled = ollama.cancel()
+
+    return jsonify({
+        "cancelled": cancelled
+    })
+    
+    
 @app.route("/health")
 def health():
 
@@ -363,6 +374,9 @@ def ask():
                         stats,
                         ensure_ascii=False
                     ) + "\n"
+
+        except GeneratorExit:
+            print("[STOP] Client déconnecté, génération interrompue")
 
         except Exception as e:
             print(f"[ERROR] {type(e).__name__}: {e}")

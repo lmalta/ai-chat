@@ -136,23 +136,24 @@
 
                 <div class="buttons">
 
-
                     <button id="sendButton">
-
                         Envoyer
-
                     </button>
 
+                    <button
+                        id="stopButton"
+                        class="secondary"
+                        disabled
+                    >
+                        ⏹ Stop
+                    </button>
 
                     <button
                         id="clearButton"
                         class="secondary"
                     >
-
                         Nouvelle conversation
-
                     </button>
-
 
                 </div>
 
@@ -202,7 +203,9 @@
     </div>
 
 
-
+    <script
+        src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+    ></script>
     <script
         src="{{ url_for('static', filename='app.js') }}"
     ></script>
