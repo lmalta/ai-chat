@@ -15,9 +15,10 @@ import json
 from config import Config
 from ollama_client import OllamaClient
 from stats import build_stats
-
+from conversations import init_db
 
 app = Flask(__name__)
+init_db()
 app.config.from_object(Config)
 
 # Configuration session
