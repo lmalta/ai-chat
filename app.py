@@ -22,6 +22,7 @@ from conversations import (
     get_conversations,
     get_messages,
     conversation_exists,
+    get_conversation,
 )
 
 app = Flask(__name__)
@@ -137,6 +138,21 @@ def health():
 def api_conversations():
     return jsonify(get_conversations())
 
+@app.route("/api/conversations/<int:conversation_id>")
+@login_required
+def api_get_conversation(conversation_id):
+
+    conversation = get_conversation(conversation_id)
+
+    if conversation is None:
+        return jsonify({
+            "error": "Conversation introuvable"
+        }), 404
+
+    conversation["messages"] = get_messages(conversation_id)
+
+    return jsonify(conversation)
+    
 @app.route("/api/conversations", methods=["POST"])
 @login_required
 def api_create_conversation():

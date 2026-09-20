@@ -73,6 +73,28 @@ def conversation_exists(conversation_id):
         ).fetchone()
 
         return row is not None
+
+def get_conversation(conversation_id):
+
+    with get_db() as conn:
+
+        row = conn.execute(
+            """
+            SELECT
+                id,
+                title,
+                created_at,
+                updated_at
+            FROM conversations
+            WHERE id = ?
+            """,
+            (conversation_id,)
+        ).fetchone()
+
+        if row is None:
+            return None
+
+        return dict(row)
         
 def add_message(conversation_id, role, content, model=None):
     with get_db() as conn:
