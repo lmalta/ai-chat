@@ -159,3 +159,15 @@ def get_messages(conversation_id):
         ).fetchall()
 
         return [dict(row) for row in rows]
+
+def delete_conversation(conversation_id):
+    with get_db() as conn:
+        cursor = conn.execute(
+            """
+            DELETE FROM conversations
+            WHERE id = ?
+            """,
+            (conversation_id,)
+        )
+
+        return cursor.rowcount > 0

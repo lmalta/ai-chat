@@ -80,15 +80,22 @@ async function loadConversations() {
         conversations.forEach(
             function(conversation) {
 
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+                row.className =
+                    "conversation-row";
+
+
                 const button =
                     document.createElement(
                         "button"
                     );
 
-
                 button.className =
                     "conversation-item";
-
 
                 button.innerText =
                     conversation.title;
@@ -106,13 +113,93 @@ async function loadConversations() {
                 );
 
 
-                conversationList.appendChild(
+                const deleteButton =
+                    document.createElement(
+                        "button"
+                    );
+
+                deleteButton.innerText =
+                    "🗑️";
+
+                deleteButton.className =
+                    "delete-conversation-button";
+
+                deleteButton.addEventListener(
+                    "click",
+                    async function(event) {
+
+                        event.stopPropagation();
+
+                        const confirmed =
+                            confirm(
+                                "Supprimer cette conversation ?"
+                            );
+
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    "/api/conversations/" +
+                                    conversation.id,
+                                    {
+                                        method: "DELETE"
+                                    }
+                                );
+
+                            if (!response.ok) {
+
+                                throw new Error(
+                                    "Erreur HTTP " +
+                                    response.status
+                                );
+
+                            }
+
+                            if (
+                                conversationId ===
+                                conversation.id
+                            ) {
+                                clearChat();
+                            }
+
+                            await loadConversations();
+
+                        }
+                        catch (error) {
+
+                            console.error(
+                                "Erreur suppression conversation :",
+                                error
+                            );
+
+                            alert(
+                                "Impossible de supprimer la conversation."
+                            );
+
+                        }
+
+                    }
+                );
+
+                row.appendChild(
                     button
+                );
+
+                row.appendChild(
+                    deleteButton
+                );
+
+
+                conversationList.appendChild(
+                    row
                 );
 
             }
         );
-
     }
     catch (error) {
 

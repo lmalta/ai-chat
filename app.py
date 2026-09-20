@@ -23,6 +23,7 @@ from conversations import (
     get_messages,
     conversation_exists,
     get_conversation,
+    delete_conversation,
 )
 
 app = Flask(__name__)
@@ -153,6 +154,26 @@ def api_get_conversation(conversation_id):
 
     return jsonify(conversation)
     
+@app.route(
+    "/api/conversations/<int:conversation_id>",
+    methods=["DELETE"]
+)
+@login_required
+def api_delete_conversation(conversation_id):
+
+    deleted = delete_conversation(
+        conversation_id
+    )
+
+    if not deleted:
+        return jsonify({
+            "error": "Conversation introuvable"
+        }), 404
+
+    return jsonify({
+        "success": True
+    })
+        
 @app.route("/api/conversations", methods=["POST"])
 @login_required
 def api_create_conversation():
