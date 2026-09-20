@@ -136,6 +136,36 @@ def health():
 def api_conversations():
     return jsonify(get_conversations())
 
+@app.route("/api/conversations", methods=["POST"])
+@login_required
+def api_create_conversation():
+
+    data = request.get_json(silent=True) or {}
+
+    title = data.get("title", "Nouvelle conversation")
+
+    if not isinstance(title, str):
+        return jsonify({
+            "error": "Titre invalide"
+        }), 400
+
+    title = title.strip()
+
+    if not title:
+        title = "Nouvelle conversation"
+
+    if len(title) > 200:
+        return jsonify({
+            "error": "Titre trop long"
+        }), 400
+
+    conversation_id = create_conversation(title)
+
+    return jsonify({
+        "id": conversation_id,
+        "title": title
+    }), 201
+    
 # ============================================================
 # CHAT
 # ============================================================
