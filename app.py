@@ -131,6 +131,10 @@ def health():
         "status": "ok"
     })
 
+@app.route("/api/conversations")
+@login_required
+def api_conversations():
+    return jsonify(get_conversations())
 
 # ============================================================
 # CHAT
