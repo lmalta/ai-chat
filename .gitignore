@@ -20,3 +20,6 @@ __pycache__/
 
 # Configurations système locales
 conf/etc/
+
+# Base de données locale
+ai_chat.db
