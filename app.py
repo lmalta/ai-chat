@@ -15,7 +15,13 @@ import json
 from config import Config
 from ollama_client import OllamaClient
 from stats import build_stats
-from conversations import init_db
+from conversations import (
+    init_db,
+    create_conversation,
+    add_message,
+    get_conversations,
+    get_messages,
+)
 
 app = Flask(__name__)
 init_db()
