@@ -43,3 +43,80 @@ def init_db():
                     ON DELETE CASCADE
             )
         """)
+
+
+def create_conversation(title="Nouvelle conversation"):
+    with get_db() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO conversations (title)
+            VALUES (?)
+            """,
+            (title,)
+        )
+        return cursor.lastrowid
+
+
+def add_message(conversation_id, role, content, model=None):
+    with get_db() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO messages (
+                conversation_id,
+                role,
+                content,
+                model
+            )
+            VALUES (?, ?, ?, ?)
+            """,
+            (conversation_id, role, content, model)
+        )
+
+        conn.execute(
+            """
+            UPDATE conversations
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (conversation_id,)
+        )
+
+        return cursor.lastrowid
+
+
+def get_conversations():
+    with get_db() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                id,
+                title,
+                created_at,
+                updated_at
+            FROM conversations
+            ORDER BY updated_at DESC
+            """
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+
+
+def get_messages(conversation_id):
+    with get_db() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                id,
+                conversation_id,
+                role,
+                content,
+                model,
+                created_at
+            FROM messages
+            WHERE conversation_id = ?
+            ORDER BY id ASC
+            """,
+            (conversation_id,)
+        ).fetchall()
+
+        return [dict(row) for row in rows]
