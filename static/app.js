@@ -40,6 +40,89 @@ function addMessage(role, content) {
     return div;
 }
 
+// =========================
+// Charger les conversations
+// =========================
+
+async function loadConversations() {
+
+    const conversationList =
+        document.getElementById(
+            "conversationList"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/conversations"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Erreur HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const conversations =
+            await response.json();
+
+
+        conversationList.innerHTML = "";
+
+
+        conversations.forEach(
+            function(conversation) {
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                button.className =
+                    "conversation-item";
+
+
+                button.innerText =
+                    conversation.title;
+
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        loadConversation(
+                            conversation.id
+                        );
+
+                    }
+                );
+
+
+                conversationList.appendChild(
+                    button
+                );
+
+            }
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erreur chargement conversations :",
+            error
+        );
+
+    }
+}
 
 // =========================
 // Affichage statistiques
@@ -98,6 +181,83 @@ function displayStats(stats) {
 // Envoyer un message
 // =========================
 
+async function loadConversation(id) {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/conversations/" + id
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Erreur HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const conversation =
+            await response.json();
+
+
+        // =========================
+        // Mettre à jour la conversation active
+        // =========================
+
+        conversationId =
+            conversation.id;
+
+
+        // =========================
+        // Recharger les messages
+        // =========================
+
+        messages = [];
+
+
+        chat.innerHTML = "";
+
+
+        conversation.messages.forEach(
+            function(message) {
+
+                messages.push({
+                    role: message.role,
+                    content: message.content
+                });
+
+
+                addMessage(
+                    message.role,
+                    message.content
+                );
+
+            }
+        );
+
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
+
+        promptInput.focus();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erreur chargement conversation :",
+            error
+        );
+
+    }
+}
+
 async function sendMessage() {
 
     const prompt =
@@ -152,6 +312,8 @@ async function sendMessage() {
 
         conversationId =
             conversation.id;
+
+        await loadConversations();
     }
 
 
@@ -374,6 +536,8 @@ function clearChat() {
 
     messages = [];
 
+    conversationId = null;
+
     chat.innerHTML = "";
 
     promptInput.focus();
@@ -440,3 +604,14 @@ promptInput.addEventListener(
 
     }
 );
+
+document
+    .getElementById("newConversationButton")
+    .addEventListener(
+        "click",
+        function() {
+            clearChat();
+        }
+    );
+
+loadConversations();

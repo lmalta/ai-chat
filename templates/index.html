@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 
 <head>
@@ -19,107 +20,193 @@
 
 </head>
 
+
 <body>
 
-    <div class="container">
 
-        <h1>🤖 Mon IA locale</h1>
-
-        <div class="controls">
-
-            <label for="model">
-                <strong>Modèle :</strong>
-            </label>
-
-            <select id="model">
-
-                {% for model in models %}
-
-                <option
-                    value="{{ model }}"
-                    {% if model == default_model %}
-                    selected
-                    {% endif %}
-                >
-                    {{ model }}
-                </option>
-
-                {% endfor %}
-
-            </select>
-
-            <label class="stats-checkbox">
-
-                <input
-                    type="checkbox"
-                    id="showStats"
-                    checked
-                >
-
-                Afficher les statistiques
-
-            </label>
-
-        </div>
+    <div class="app-layout">
 
 
-        <div id="chat"></div>
+        <!-- =========================
+             SIDEBAR
+             ========================= -->
+
+        <aside class="conversation-sidebar">
 
 
-        <textarea
-            id="prompt"
-            placeholder="Écris ton message..."
-        ></textarea>
+            <h1>🤖 Mon IA locale</h1>
 
-
-        <div class="buttons">
-
-            <button id="sendButton">
-                Envoyer
-            </button>
 
             <button
-                id="clearButton"
-                class="secondary"
+                id="newConversationButton"
+                class="new-conversation-button"
             >
-                Nouvelle conversation
+                + Nouvelle conversation
             </button>
 
-        </div>
+
+            <h2>Historique</h2>
+
+
+            <div id="conversationList"></div>
+
+
+        </aside>
+
+
+
+        <!-- =========================
+             ZONE PRINCIPALE
+             ========================= -->
+
+        <main class="main-content">
+
+
+            <div class="controls">
+
+
+                <label for="model">
+
+                    <strong>Modèle :</strong>
+
+                </label>
+
+
+                <select id="model">
+
+                    {% for model in models %}
+
+                    <option
+                        value="{{ model }}"
+                        {% if model == default_model %}
+                        selected
+                        {% endif %}
+                    >
+
+                        {{ model }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <label class="stats-checkbox">
+
+                    <input
+                        type="checkbox"
+                        id="showStats"
+                        checked
+                    >
+
+                    Afficher les statistiques
+
+                </label>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 CHAT
+                 ========================= -->
+
+            <div class="chat-area">
+
+                <div id="chat"></div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 SAISIE
+                 ========================= -->
+
+            <div class="input-area">
+
+
+                <textarea
+                    id="prompt"
+                    placeholder="Écris ton message..."
+                ></textarea>
+
+
+                <div class="buttons">
+
+
+                    <button id="sendButton">
+
+                        Envoyer
+
+                    </button>
+
+
+                    <button
+                        id="clearButton"
+                        class="secondary"
+                    >
+
+                        Nouvelle conversation
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </main>
+
 
     </div>
 
 
-    <!-- ========================= -->
-    <!-- Fenêtre statistiques       -->
-    <!-- ========================= -->
+
+    <!-- =========================
+         Fenêtre statistiques
+         ========================= -->
 
     <div
         id="statsModal"
         class="modal hidden"
     >
 
+
         <div class="modal-content">
+
 
             <button
                 id="closeStats"
                 class="close"
             >
+
                 ×
+
             </button>
+
 
             <h2>📊 Statistiques</h2>
 
+
             <div id="statsContent"></div>
+
 
         </div>
 
+
     </div>
+
 
 
     <script
         src="{{ url_for('static', filename='app.js') }}"
     ></script>
+
 
 </body>
 
