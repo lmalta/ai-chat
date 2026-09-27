@@ -445,12 +445,227 @@ button:disabled {
 
 @media (max-width: 700px) {
 
+    /* =========================
+       Layout mobile
+       ========================= */
+
+    .app-layout {
+        height: 100dvh;
+    }
+
+
+    /* =========================
+       Sidebar
+       ========================= */
+
     .conversation-sidebar {
-        width: 220px;
+        display: none;
     }
 
-    .conversation-sidebar h1 {
-        font-size: 17px;
+
+    /* =========================
+       Zone principale
+       ========================= */
+
+    .main-content {
+        width: 100%;
+        height: 100dvh;
     }
 
+
+    /* =========================
+       Barre supérieure
+       ========================= */
+
+    .controls {
+        height: auto;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        padding: 10px 12px;
+    }
+
+
+    .controls select {
+        max-width: 100%;
+
+        min-width: 0;
+
+        padding: 7px 8px;
+    }
+
+
+    .stats-checkbox {
+        margin-left: 0;
+
+        width: 100%;
+
+        font-size: 14px;
+    }
+
+
+    /* =========================
+       Zone de chat
+       ========================= */
+
+    .chat-area {
+        padding: 10px;
+    }
+
+
+    #chat {
+        padding: 10px;
+
+        border-radius: 8px;
+    }
+
+
+    /* =========================
+       Messages
+       ========================= */
+
+    .message {
+        margin: 10px 0;
+
+        padding: 10px;
+
+        max-width: 100%;
+
+        overflow-wrap: anywhere;
+    }
+
+
+    /* =========================
+       Zone de saisie
+       ========================= */
+
+    .input-area {
+        padding: 10px;
+    }
+
+
+    textarea {
+        width: 100%;
+
+        height: 90px;
+
+        font-size: 16px;
+    }
+
+
+    .buttons {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+
+
+    .buttons button {
+        flex: 1 1 auto;
+
+        min-width: 0;
+
+        margin-top: 0;
+
+        padding: 10px 12px;
+
+        font-size: 15px;
+    }
+
+
+    /* =========================
+       Fenêtre statistiques
+       ========================= */
+
+    .modal-content {
+        width: calc(100% - 24px);
+
+        max-width: none;
+
+        max-height: calc(100dvh - 24px);
+
+        overflow-y: auto;
+
+        padding: 20px;
+    }
+
+
+    .stats-row {
+        gap: 10px;
+
+        flex-wrap: wrap;
+    }
+
+
+    .stats-row span:last-child {
+        overflow-wrap: anywhere;
+
+        text-align: right;
+    }
+
+}
+
+
+/* =========================
+   Blocs de code Markdown
+   ========================= */
+
+.code-block-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 15px 0;
+}
+
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 16px;
+    padding-top: 48px;
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+.code-copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+
+    padding: 6px 10px;
+
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+
+    background: white;
+    color: #333;
+
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.code-copy-button:hover {
+    background: #f0f0f0;
+}
+
+@media (max-width: 700px) {
+
+    .code-block-wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .code-block-wrapper pre {
+        padding: 48px 10px 12px 10px;
+        font-size: 13px;
+    }
+
+    .code-copy-button {
+        top: 7px;
+        right: 7px;
+        padding: 6px 9px;
+        font-size: 12px;
+    }
 }

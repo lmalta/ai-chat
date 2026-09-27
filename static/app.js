@@ -23,8 +23,70 @@ const closeStats =
 
 
 // =========================
+// Markdown + coloration syntaxique
+// =========================
+
+function renderMarkdown(content) {
+
+    const container =
+        document.createElement("div");
+
+    container.innerHTML =
+        marked.parse(content || "");
+
+    container
+        .querySelectorAll("pre code")
+        .forEach(function(block) {
+
+            const languageClass =
+                Array.from(block.classList)
+                    .find(function(className) {
+
+                        return className.startsWith(
+                            "language-"
+                        );
+
+                    });
+
+
+            if (!languageClass) {
+                return;
+            }
+
+
+            const language =
+                languageClass.replace(
+                    "language-",
+                    ""
+                );
+
+
+            if (
+                typeof hljs !== "undefined" &&
+                hljs.getLanguage(language)
+            ) {
+
+                block.innerHTML =
+                    hljs.highlight(
+                        block.textContent,
+                        {
+                            language: language
+                        }
+                    ).value;
+
+                block.classList.add("hljs");
+            }
+
+        });
+
+    return container.innerHTML;
+}
+
+
+// =========================
 // Affichage message
 // =========================
+
 function addMessage(role, content) {
 
     const div = document.createElement("div");
@@ -38,7 +100,7 @@ function addMessage(role, content) {
         "message-content";
 
     contentDiv.innerHTML =
-        marked.parse(content);
+        renderMarkdown(content);
 
     div.appendChild(contentDiv);
 
@@ -74,6 +136,7 @@ function addMessage(role, content) {
 
     return contentDiv;
 }
+
 
 // =========================
 // Charger les conversations
@@ -246,6 +309,7 @@ async function loadConversations() {
     }
 }
 
+
 // =========================
 // Affichage statistiques
 // =========================
@@ -300,7 +364,7 @@ function displayStats(stats) {
 
 
 // =========================
-// Envoyer un message
+// Charger une conversation
 // =========================
 
 async function loadConversation(id) {
@@ -380,6 +444,11 @@ async function loadConversation(id) {
     }
 }
 
+
+// =========================
+// Envoyer un message
+// =========================
+
 async function sendMessage() {
 
     const prompt = promptInput.value.trim();
@@ -389,7 +458,8 @@ async function sendMessage() {
     }
 
 
-    abortController = new AbortController();
+    abortController =
+        new AbortController();
 
     const model = modelSelect.value;
 
@@ -474,7 +544,10 @@ async function sendMessage() {
                         "Content-Type":
                             "application/json"
                     },
-                    signal: abortController.signal,
+
+                    signal:
+                        abortController.signal,
+
                     body: JSON.stringify({
                         messages: messages,
                         model: model,
@@ -553,7 +626,9 @@ async function sendMessage() {
                         data.content;
 
                     assistantMessage.innerHTML =
-                        marked.parse(fullResponse);
+                        renderMarkdown(
+                            fullResponse
+                        );
 
                     chat.scrollTop =
                         chat.scrollHeight;
@@ -591,8 +666,10 @@ async function sendMessage() {
                 fullResponse +=
                     data.content;
 
-            assistantMessage.innerHTML =
-                marked.parse(fullResponse);
+                assistantMessage.innerHTML =
+                    renderMarkdown(
+                        fullResponse
+                    );
             }
 
 
@@ -634,14 +711,17 @@ async function sendMessage() {
         }
 
     } catch (error) {
-    if (error.name === "AbortError") {
-        return;
-    }
 
-    assistantMessage.innerText =
-        "❌ Erreur : " +
-        error.message;
-}
+        if (error.name === "AbortError") {
+
+            return;
+        }
+
+        assistantMessage.innerText =
+            "❌ Erreur : " +
+            error.message;
+
+    }
     finally {
 
         sendButton.disabled = false;
@@ -650,6 +730,7 @@ async function sendMessage() {
         promptInput.focus();
     }
 }
+
 
 // =========================
 // Nouvelle conversation
@@ -676,22 +757,36 @@ function closeStatsModal() {
     statsModal.classList.add("hidden");
 }
 
-stopButton.addEventListener("click", async function() {
-    if (abortController) {
-        abortController.abort();
-    }
 
-    try {
-        await fetch("/cancel", {
-            method: "POST"
-        });
-    } catch (error) {
-        console.error(
-            "Erreur lors de l'annulation :",
-            error
-        );
+stopButton.addEventListener(
+    "click",
+    async function() {
+
+        if (abortController) {
+
+            abortController.abort();
+        }
+
+        try {
+
+            await fetch(
+                "/cancel",
+                {
+                    method: "POST"
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Erreur lors de l'annulation :",
+                error
+            );
+
+        }
     }
-});
+);
+
 
 sendButton.addEventListener(
     "click",
@@ -716,6 +811,7 @@ statsModal.addEventListener(
     function(event) {
 
         if (event.target === statsModal) {
+
             closeStatsModal();
         }
 
@@ -744,13 +840,17 @@ promptInput.addEventListener(
     }
 );
 
+
 document
     .getElementById("newConversationButton")
     .addEventListener(
         "click",
         function() {
+
             clearChat();
+
         }
     );
+
 
 loadConversations();
