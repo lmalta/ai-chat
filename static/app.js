@@ -2,6 +2,48 @@ let messages = [];
 let conversationId = null;
 let abortController = null;
 
+// =========================
+// Copie compatible HTTP
+// =========================
+
+async function copyText(text) {
+
+    if (
+        navigator.clipboard &&
+        window.isSecureContext
+    ) {
+
+        await navigator.clipboard.writeText(text);
+
+        return;
+    }
+
+
+    const textarea =
+        document.createElement("textarea");
+
+    textarea.value = text;
+
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+
+    const success =
+        document.execCommand("copy");
+
+    textarea.remove();
+
+    if (!success) {
+
+        throw new Error(
+            "Impossible de copier le texte"
+        );
+    }
+}
 
 const chat = document.getElementById("chat");
 const promptInput = document.getElementById("prompt");
@@ -123,7 +165,7 @@ function renderMarkdown(content) {
             wrapper.appendChild(copyButton);
 
         });
-        
+
     return container.innerHTML;
 }
 
@@ -923,7 +965,7 @@ chat.addEventListener(
             return;
         }
 
-        navigator.clipboard.writeText(
+        copyText(
             code.innerText
         ).then(function() {
 
