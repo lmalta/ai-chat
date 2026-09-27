@@ -78,7 +78,52 @@ function renderMarkdown(content) {
             }
 
         });
+    container
+        .querySelectorAll("pre code")
+        .forEach(function(block) {
 
+            const languageClass =
+                Array.from(block.classList)
+                    .find(function(className) {
+
+                        return className.startsWith(
+                            "language-"
+                        );
+
+                    });
+
+            if (!languageClass) {
+                return;
+            }
+
+            const pre =
+                block.parentElement;
+
+            const wrapper =
+                document.createElement("div");
+
+            wrapper.className =
+                "code-block-wrapper";
+
+            const copyButton =
+                document.createElement("button");
+
+            copyButton.innerText =
+                "📋 Copier";
+
+            copyButton.className =
+                "code-copy-button";
+
+            pre.parentNode.insertBefore(
+                wrapper,
+                pre
+            );
+
+            wrapper.appendChild(pre);
+            wrapper.appendChild(copyButton);
+
+        });
+        
     return container.innerHTML;
 }
 
@@ -852,5 +897,52 @@ document
         }
     );
 
+// =========================
+// Copier les blocs de code
+// =========================
+
+chat.addEventListener(
+    "click",
+    function(event) {
+
+        if (!event.target.classList.contains("code-copy-button")) {
+            return;
+        }
+
+        const wrapper =
+            event.target.closest(".code-block-wrapper");
+
+        if (!wrapper) {
+            return;
+        }
+
+        const code =
+            wrapper.querySelector("pre code");
+
+        if (!code) {
+            return;
+        }
+
+        navigator.clipboard.writeText(
+            code.innerText
+        ).then(function() {
+
+            event.target.innerText = "✅ Copié";
+
+            setTimeout(function() {
+                event.target.innerText = "📋 Copier";
+            }, 1500);
+
+        }).catch(function(error) {
+
+            console.error(
+                "Erreur copie code :",
+                error
+            );
+
+        });
+
+    }
+);
 
 loadConversations();
