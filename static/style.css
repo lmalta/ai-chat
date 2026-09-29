@@ -98,50 +98,155 @@ body {
 /* =========================
    Liste conversations
    ========================= */
+
 .conversation-row {
+    position: relative;
+
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 6px;
+    width: 100%;
+    margin: 2px 0;
+    border-radius: 8px;
 }
 
 .conversation-item {
-    display: flex;
     flex: 1;
-
-    width: 100%;
-
-    margin-bottom: 6px;
+    min-width: 0;
 
     padding: 9px 10px;
 
     border: none;
+    border-radius: 8px;
 
-    border-radius: 7px;
+    background: transparent;
+
+    text-align: left;
+    cursor: pointer;
+
+    font-size: 14px;
+    color: #333;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    transition: background 0.15s ease;
+}
+
+.conversation-item:hover {
+    background: #e2e2e2;
+}
+
+
+/* Conversation active */
+
+.conversation-item.active {
+    background: #dcdcdc;
+    font-weight: 500;
+}
+
+
+/* Bouton supprimer */
+
+.delete-conversation-button {
+    flex-shrink: 0;
+
+    width: 30px;
+    height: 30px;
+
+    margin-right: 3px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #777;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    opacity: 0;
+
+    transition:
+        opacity 0.15s ease,
+        background 0.15s ease;
+}
+
+
+/* Afficher la corbeille uniquement au survol */
+
+.conversation-row:hover .delete-conversation-button {
+    opacity: 1;
+}
+
+
+.delete-conversation-button:hover {
+    background: #d5d5d5;
+    color: #333;
+}
+
+/* =========================
+   Menu conversation
+   ========================= */
+
+.conversation-menu {
+    position: absolute;
+
+    right: 8px;
+    top: 38px;
+
+    min-width: 150px;
+
+    padding: 5px;
+
+    background: white;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12);
+
+    z-index: 100;
+}
+
+
+.conversation-menu button {
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border: none;
+    border-radius: 6px;
 
     background: transparent;
 
     text-align: left;
 
-    cursor: pointer;
-
     font-size: 14px;
-}
 
-.delete-conversation-button {
-    margin: 0;
-    padding: 5px 7px;
-    border: none;
-    background: transparent;
-    font-size: 14px;
     cursor: pointer;
 }
 
-.conversation-item:hover {
-    background: #dddddd;
+
+.conversation-menu button:hover {
+    background: #f1f1f1;
 }
 
 
+.conversation-menu-separator {
+    height: 1px;
+
+    margin: 4px 0;
+
+    background: #e5e5e5;
+}
 /* =========================
    Zone principale
    ========================= */

@@ -24,6 +24,7 @@ from conversations import (
     conversation_exists,
     get_conversation,
     delete_conversation,
+    update_conversation_title,
 )
 
 app = Flask(__name__)
@@ -184,7 +185,50 @@ def api_delete_conversation(conversation_id):
     return jsonify({
         "success": True
     })
-        
+
+@app.route(
+    "/api/conversations/<int:conversation_id>",
+    methods=["PUT"]
+)
+@login_required
+def api_update_conversation(conversation_id):
+
+    data = request.get_json(silent=True) or {}
+
+    title = data.get("title")
+
+    if not isinstance(title, str):
+        return jsonify({
+            "error": "Titre invalide"
+        }), 400
+
+    title = title.strip()
+
+    if not title:
+        return jsonify({
+            "error": "Le titre ne peut pas être vide"
+        }), 400
+
+    if len(title) > 200:
+        return jsonify({
+            "error": "Titre trop long"
+        }), 400
+
+    updated = update_conversation_title(
+        conversation_id,
+        title
+    )
+
+    if not updated:
+        return jsonify({
+            "error": "Conversation introuvable"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "title": title
+    })
+            
 @app.route("/api/conversations", methods=["POST"])
 @login_required
 def api_create_conversation():

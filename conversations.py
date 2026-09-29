@@ -58,7 +58,22 @@ def create_conversation(title="Nouvelle conversation"):
 
         return cursor.lastrowid
 
+def update_conversation_title(conversation_id, title):
 
+    with get_db() as conn:
+
+        cursor = conn.execute(
+            """
+            UPDATE conversations
+            SET title = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (title, conversation_id)
+        )
+
+        return cursor.rowcount > 0
+        
 def conversation_exists(conversation_id):
 
     with get_db() as conn:

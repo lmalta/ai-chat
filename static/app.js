@@ -115,7 +115,7 @@ function renderMarkdown(content) {
             link.rel = "noopener noreferrer";
 
         });
-        
+
     container
         .querySelectorAll("pre code")
         .forEach(function(block) {
@@ -341,6 +341,10 @@ async function loadConversations() {
                 button.className =
                     "conversation-item";
 
+                if (conversationId === conversation.id) {
+                    button.classList.add("active");
+                }
+
                 button.innerText =
                     conversation.title;
 
@@ -363,71 +367,215 @@ async function loadConversations() {
                     );
 
                 deleteButton.innerText =
-                    "🗑️";
+                    "⋯";
 
                 deleteButton.className =
                     "delete-conversation-button";
 
-                deleteButton.addEventListener(
-                    "click",
-                    async function(event) {
+ deleteButton.addEventListener(
+    "click",
+    function(event) {
 
-                        event.stopPropagation();
+        event.stopPropagation();
 
-                        const confirmed =
-                            confirm(
-                                "Supprimer cette conversation ?"
-                            );
+        const existingMenu =
+            document.querySelector(
+                ".conversation-menu"
+            );
 
-                        if (!confirmed) {
-                            return;
-                        }
+        if (existingMenu) {
+            existingMenu.remove();
+        }
 
-                        try {
 
-                            const response =
-                                await fetch(
-                                    "/api/conversations/" +
-                                    conversation.id,
-                                    {
-                                        method: "DELETE"
-                                    }
-                                );
+        const menu =
+            document.createElement(
+                "div"
+            );
 
-                            if (!response.ok) {
+        menu.className =
+            "conversation-menu";
 
-                                throw new Error(
-                                    "Erreur HTTP " +
-                                    response.status
-                                );
 
+        const renameButton =
+            document.createElement(
+                "button"
+            );
+
+        renameButton.innerText =
+            "✏️ Renommer";
+
+        renameButton.addEventListener(
+            "click",
+            async function(event) {
+
+                event.stopPropagation();
+
+                const newTitle =
+                    prompt(
+                        "Nouveau nom de la conversation :",
+                        conversation.title
+                    );
+
+                if (
+                    newTitle === null ||
+                    !newTitle.trim()
+                ) {
+                    return;
+                }
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/conversations/" +
+                            conversation.id,
+                            {
+                                method: "PUT",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    title:
+                                        newTitle.trim()
+                                })
                             }
+                        );
 
-                            if (
-                                conversationId ===
-                                conversation.id
-                            ) {
-                                clearChat();
-                            }
+                    if (!response.ok) {
 
-                            await loadConversations();
-
-                        }
-                        catch (error) {
-
-                            console.error(
-                                "Erreur suppression conversation :",
-                                error
-                            );
-
-                            alert(
-                                "Impossible de supprimer la conversation."
-                            );
-
-                        }
+                        throw new Error(
+                            "Erreur HTTP " +
+                            response.status
+                        );
 
                     }
-                );
+
+                    menu.remove();
+
+                    await loadConversations();
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Erreur renommage conversation :",
+                        error
+                    );
+
+                    alert(
+                        "Impossible de renommer la conversation."
+                    );
+
+                }
+
+            }
+        );
+
+
+        const separator =
+            document.createElement(
+                "div"
+            );
+
+        separator.className =
+            "conversation-menu-separator";
+
+
+        const deleteButtonMenu =
+            document.createElement(
+                "button"
+            );
+
+        deleteButtonMenu.innerText =
+            "🗑️ Supprimer";
+
+        deleteButtonMenu.addEventListener(
+            "click",
+            async function(event) {
+
+                event.stopPropagation();
+
+                menu.remove();
+
+                const confirmed =
+                    confirm(
+                        "Supprimer cette conversation ?"
+                    );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/conversations/" +
+                            conversation.id,
+                            {
+                                method: "DELETE"
+                            }
+                        );
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Erreur HTTP " +
+                            response.status
+                        );
+
+                    }
+
+                    if (
+                        conversationId ===
+                        conversation.id
+                    ) {
+                        clearChat();
+                    }
+
+                    await loadConversations();
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Erreur suppression conversation :",
+                        error
+                    );
+
+                    alert(
+                        "Impossible de supprimer la conversation."
+                    );
+
+                }
+
+            }
+        );
+
+
+        menu.appendChild(
+            renameButton
+        );
+
+        menu.appendChild(
+            separator
+        );
+
+        menu.appendChild(
+            deleteButtonMenu
+        );
+
+
+        row.appendChild(
+            menu
+        );
+
+    }
+);
 
                 row.appendChild(
                     button
@@ -543,6 +691,8 @@ async function loadConversation(id) {
 
         conversationId =
             conversation.id;
+
+        await loadConversations();
 
 
         // =========================
@@ -1042,6 +1192,35 @@ chat.addEventListener(
             );
 
         });
+
+    }
+);
+
+// Fermer le menu conversation en cliquant ailleurs
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target.closest(
+                ".conversation-menu"
+            ) ||
+            event.target.closest(
+                ".delete-conversation-button"
+            )
+        ) {
+            return;
+        }
+
+        const menu =
+            document.querySelector(
+                ".conversation-menu"
+            );
+
+        if (menu) {
+            menu.remove();
+        }
 
     }
 );
