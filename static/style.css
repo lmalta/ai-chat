@@ -453,6 +453,21 @@ button:disabled {
 }
 
 /* =========================
+   Citations Markdown
+   ========================= */
+
+.message blockquote {
+    margin: 15px 0;
+    padding: 10px 15px;
+
+    border-left: 4px solid #0066cc;
+
+    background: #f5f7fa;
+
+    color: #555;
+}
+
+/* =========================
    Mobile
    ========================= */
 
