@@ -260,12 +260,6 @@ body {
     margin-bottom: 0;
 }
 
-.message h1,
-.message h2,
-.message h3 {
-    margin-top: 0;
-}
-
 .message ul,
 .message ol {
     margin-bottom: 0;
