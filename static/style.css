@@ -329,25 +329,35 @@ body {
    ========================= */
 
 .message {
-    margin: 15px 0;
+    margin: 12px 0;
 
-    padding: 12px;
+    padding: 12px 14px;
 
-    border-radius: 8px;
+    border-radius: 10px;
 
     white-space: pre-wrap;
 
     word-wrap: break-word;
+
+    line-height: 1.5;
+
+    box-sizing: border-box;
 }
 
 
 .message.user {
-    background: #e3f2fd;
-    text-align: right;
+    margin-left: 12%;
+    background: #f1f1f1;
+
+    text-align: left;
 }
 
+
 .message.assistant {
-    background: #eeeeee;
+    margin-right: 12%;
+    background: #f8f8f8;
+
+    border: 1px solid #e5e5e5;
 }
 
 .message p:first-child {
@@ -420,49 +430,90 @@ body {
 .input-area {
     flex-shrink: 0;
 
-    padding: 15px 20px;
+    padding: 12px 20px 15px;
 
     background: white;
 
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #e2e2e2;
 }
 
 
 textarea {
     width: 100%;
 
-    height: 80px;
+    min-height: 80px;
 
-    padding: 10px;
+    padding: 12px 14px;
 
-    font-size: 16px;
+    box-sizing: border-box;
+
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+
+    color: #222;
+
+    background: #fafafa;
+
+    border: 1px solid #d5d5d5;
+    border-radius: 10px;
+
+    outline: none;
 
     resize: vertical;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+textarea:focus {
+    background: white;
+
+    border-color: #b5b5b5;
+
+    box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.04);
 }
 
 
 .buttons {
     display: flex;
 
-    gap: 10px;
+    gap: 8px;
 }
 
 
 button {
     margin-top: 10px;
 
-    padding: 10px 25px;
+    padding: 9px 16px;
 
-    font-size: 16px;
+    font-size: 14px;
 
     cursor: pointer;
+
+    border-radius: 8px;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
 }
 
 
 button.secondary {
+    background: #f5f5f5;
+
+    border: 1px solid #d5d5d5;
+}
+
+
+button.secondary:hover {
     background: #eeeeee;
 
-    border: 1px solid #ccc;
+    border-color: #c8c8c8;
 }
 
 
@@ -471,7 +522,6 @@ button:disabled {
 
     opacity: 0.6;
 }
-
 
 /* =========================
    Fenêtre statistiques
@@ -704,11 +754,17 @@ button:disabled {
     .message {
         margin: 10px 0;
 
-        padding: 10px;
+        padding: 10px 12px;
 
         max-width: 100%;
 
         overflow-wrap: anywhere;
+    }
+
+    .message.user,
+    .message.assistant {
+        margin-left: 0;
+        margin-right: 0;
     }
 
 
@@ -724,9 +780,15 @@ button:disabled {
     textarea {
         width: 100%;
 
+        min-height: 90px;
+
         height: 90px;
 
+        padding: 10px 12px;
+
         font-size: 16px;
+
+        box-sizing: border-box;
     }
 
 

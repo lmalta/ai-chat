@@ -1035,9 +1035,24 @@ async function sendMessage() {
     const assistantMessage =
         addMessage(
             "assistant",
-            ""
+            "⏳ Génération en cours"
         );
 
+    let loadingDots = 0;
+
+    const loadingInterval =
+        setInterval(function() {
+
+            loadingDots =
+                (loadingDots + 1) % 4;
+
+            assistantMessage.innerText =
+                "⏳ Génération en cours" +
+                ".".repeat(loadingDots);
+
+        }, 400);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
 
@@ -1124,8 +1139,9 @@ async function sendMessage() {
                 const data =
                     JSON.parse(line);
 
-
                 if (data.type === "content") {
+
+                    clearInterval(loadingInterval);
 
                     fullResponse +=
                         data.content;
@@ -1134,7 +1150,6 @@ async function sendMessage() {
                         renderMarkdown(
                             fullResponse
                         );
-
                     chat.scrollTop =
                         chat.scrollHeight;
                 }
