@@ -2,6 +2,19 @@ let messages = [];
 let conversationId = null;
 let abortController = null;
 
+const chat =              document.getElementById("chat");
+const promptInput =       document.getElementById("prompt");
+const modelSelect =       document.getElementById("model");
+const sendButton =        document.getElementById("sendButton");
+const clearButton =       document.getElementById("clearButton");
+const stopButton =        document.getElementById("stopButton");
+const showStatsCheckbox = document.getElementById("showStats");
+const statsModal =        document.getElementById("statsModal");
+const statsContent =      document.getElementById("statsContent");
+const closeStats =        document.getElementById("closeStats");
+
+
+
 // =========================
 // Copie compatible HTTP
 // =========================
@@ -45,23 +58,41 @@ async function copyText(text) {
     }
 }
 
-const chat = document.getElementById("chat");
-const promptInput = document.getElementById("prompt");
-const modelSelect = document.getElementById("model");
-const sendButton = document.getElementById("sendButton");
-const clearButton = document.getElementById("clearButton");
-const stopButton = document.getElementById("stopButton");
-const showStatsCheckbox =
-    document.getElementById("showStats");
+// =========================
+// Copie riche de la réponse complète
+// =========================
 
-const statsModal =
-    document.getElementById("statsModal");
+function copyRichText(element) {
 
-const statsContent =
-    document.getElementById("statsContent");
+    const selection =
+        window.getSelection();
 
-const closeStats =
-    document.getElementById("closeStats");
+    const range =
+        document.createRange();
+
+    range.selectNodeContents(element);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    try {
+
+        const success =
+            document.execCommand("copy");
+
+        if (!success) {
+
+            throw new Error(
+                "Impossible de copier la réponse"
+            );
+        }
+
+    } finally {
+
+        selection.removeAllRanges();
+
+    }
+}
 
 
 // =========================
@@ -206,9 +237,28 @@ function addMessage(role, content) {
             "click",
             function() {
 
-                navigator.clipboard.writeText(
-                    contentDiv.innerText
-                );
+                try {
+
+                    copyRichText(contentDiv);
+
+                    copyButton.innerText = "✅ Copié";
+
+                    setTimeout(function() {
+                        copyButton.innerText = "📋 Copier";
+                    }, 1500);
+
+                } catch (error) {
+
+                    console.error(
+                        "Erreur copie réponse :",
+                        error
+                    );
+
+                    alert(
+                        "Impossible de copier la réponse."
+                    );
+
+                }
 
             }
         );
