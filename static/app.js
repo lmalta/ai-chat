@@ -1017,8 +1017,8 @@ async function sendMessage() {
     promptInput.value = "";
 
     sendButton.disabled = true;
+    sendButton.innerText = "⏳ Génération…";
     stopButton.disabled = false;
-
 
     addMessage(
         "user",
@@ -1245,6 +1245,7 @@ async function sendMessage() {
     finally {
 
         sendButton.disabled = false;
+        sendButton.innerText = "Envoyer";
         stopButton.disabled = true;
 
         promptInput.focus();
