@@ -360,6 +360,13 @@ body {
     border: 1px solid #e5e5e5;
 }
 
+.message.assistant::before {
+    content: "🤖";
+    display: block;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
 .message p:first-child {
     margin-top: 0;
 }
