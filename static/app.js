@@ -321,277 +321,486 @@ async function loadConversations() {
         conversationList.innerHTML = "";
 
 
+        const now =
+            new Date();
+
+        const todayStart =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+            );
+
+        const yesterdayStart =
+            new Date(
+                todayStart
+            );
+
+        yesterdayStart.setDate(
+            yesterdayStart.getDate() - 1
+        );
+
+        const sevenDaysStart =
+            new Date(
+                todayStart
+            );
+
+        sevenDaysStart.setDate(
+            sevenDaysStart.getDate() - 7
+        );
+
+
+        const groups = {
+            today: [],
+            yesterday: [],
+            last7days: [],
+            older: []
+        };
+
+
         conversations.forEach(
             function(conversation) {
 
-                const row =
-                    document.createElement(
-                        "div"
+                const dateString =
+                    conversation.updated_at ||
+                    conversation.created_at;
+
+                const conversationDate =
+                    new Date(
+                        dateString
                     );
 
-                row.className =
-                    "conversation-row";
 
+                if (
+                    conversationDate >=
+                    todayStart
+                ) {
 
-                const button =
-                    document.createElement(
-                        "button"
+                    groups.today.push(
+                        conversation
                     );
 
-                button.className =
-                    "conversation-item";
+                }
+                else if (
+                    conversationDate >=
+                    yesterdayStart
+                ) {
 
-                if (conversationId === conversation.id) {
-                    button.classList.add("active");
+                    groups.yesterday.push(
+                        conversation
+                    );
+
+                }
+                else if (
+                    conversationDate >=
+                    sevenDaysStart
+                ) {
+
+                    groups.last7days.push(
+                        conversation
+                    );
+
+                }
+                else {
+
+                    groups.older.push(
+                        conversation
+                    );
+
                 }
 
-                button.innerText =
-                    conversation.title;
+            }
+        );
 
 
-                button.addEventListener(
-                    "click",
-                    function() {
+        function createGroupTitle(
+            title
+        ) {
 
-                        loadConversation(
-                            conversation.id
-                        );
-
-                    }
+            const heading =
+                document.createElement(
+                    "div"
                 );
 
+            heading.className =
+                "conversation-group-title";
 
-                const deleteButton =
-                    document.createElement(
-                        "button"
-                    );
+            heading.innerText =
+                title;
 
-                deleteButton.innerText =
-                    "⋯";
-
-                deleteButton.className =
-                    "delete-conversation-button";
-
- deleteButton.addEventListener(
-    "click",
-    function(event) {
-
-        event.stopPropagation();
-
-        const existingMenu =
-            document.querySelector(
-                ".conversation-menu"
+            conversationList.appendChild(
+                heading
             );
 
-        if (existingMenu) {
-            existingMenu.remove();
         }
 
 
-        const menu =
-            document.createElement(
-                "div"
-            );
+        function renderConversation(
+            conversation
+        ) {
 
-        menu.className =
-            "conversation-menu";
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "conversation-row";
 
 
-        const renameButton =
-            document.createElement(
-                "button"
-            );
+            const button =
+                document.createElement(
+                    "button"
+                );
 
-        renameButton.innerText =
-            "✏️ Renommer";
+            button.className =
+                "conversation-item";
 
-        renameButton.addEventListener(
-            "click",
-            async function(event) {
 
-                event.stopPropagation();
+            if (
+                conversationId ===
+                conversation.id
+            ) {
 
-                const newTitle =
-                    prompt(
-                        "Nouveau nom de la conversation :",
-                        conversation.title
-                    );
-
-                if (
-                    newTitle === null ||
-                    !newTitle.trim()
-                ) {
-                    return;
-                }
-
-                try {
-
-                    const response =
-                        await fetch(
-                            "/api/conversations/" +
-                            conversation.id,
-                            {
-                                method: "PUT",
-
-                                headers: {
-                                    "Content-Type":
-                                        "application/json"
-                                },
-
-                                body: JSON.stringify({
-                                    title:
-                                        newTitle.trim()
-                                })
-                            }
-                        );
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            "Erreur HTTP " +
-                            response.status
-                        );
-
-                    }
-
-                    menu.remove();
-
-                    await loadConversations();
-
-                }
-                catch (error) {
-
-                    console.error(
-                        "Erreur renommage conversation :",
-                        error
-                    );
-
-                    alert(
-                        "Impossible de renommer la conversation."
-                    );
-
-                }
+                button.classList.add(
+                    "active"
+                );
 
             }
-        );
 
 
-        const separator =
-            document.createElement(
-                "div"
-            );
-
-        separator.className =
-            "conversation-menu-separator";
+            button.innerText =
+                conversation.title;
 
 
-        const deleteButtonMenu =
-            document.createElement(
-                "button"
-            );
+            button.addEventListener(
+                "click",
+                function() {
 
-        deleteButtonMenu.innerText =
-            "🗑️ Supprimer";
-
-        deleteButtonMenu.addEventListener(
-            "click",
-            async function(event) {
-
-                event.stopPropagation();
-
-                menu.remove();
-
-                const confirmed =
-                    confirm(
-                        "Supprimer cette conversation ?"
-                    );
-
-                if (!confirmed) {
-                    return;
-                }
-
-                try {
-
-                    const response =
-                        await fetch(
-                            "/api/conversations/" +
-                            conversation.id,
-                            {
-                                method: "DELETE"
-                            }
-                        );
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            "Erreur HTTP " +
-                            response.status
-                        );
-
-                    }
-
-                    if (
-                        conversationId ===
+                    loadConversation(
                         conversation.id
-                    ) {
-                        clearChat();
+                    );
+
+                }
+            );
+
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+            deleteButton.innerText =
+                "⋯";
+
+            deleteButton.className =
+                "delete-conversation-button";
+
+
+            deleteButton.addEventListener(
+                "click",
+                function(event) {
+
+                    event.stopPropagation();
+
+
+                    const existingMenu =
+                        document.querySelector(
+                            ".conversation-menu"
+                        );
+
+
+                    if (existingMenu) {
+
+                        existingMenu.remove();
+
                     }
 
-                    await loadConversations();
 
-                }
-                catch (error) {
+                    const menu =
+                        document.createElement(
+                            "div"
+                        );
 
-                    console.error(
-                        "Erreur suppression conversation :",
-                        error
+                    menu.className =
+                        "conversation-menu";
+
+
+                    const renameButton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    renameButton.innerText =
+                        "✏️ Renommer";
+
+
+                    renameButton.addEventListener(
+                        "click",
+                        async function(event) {
+
+                            event.stopPropagation();
+
+
+                            const newTitle =
+                                prompt(
+                                    "Nouveau nom de la conversation :",
+                                    conversation.title
+                                );
+
+
+                            if (
+                                newTitle === null ||
+                                !newTitle.trim()
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        "/api/conversations/" +
+                                        conversation.id,
+                                        {
+                                            method: "PUT",
+
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json"
+                                            },
+
+                                            body: JSON.stringify({
+                                                title:
+                                                    newTitle.trim()
+                                            })
+                                        }
+                                    );
+
+
+                                if (!response.ok) {
+
+                                    throw new Error(
+                                        "Erreur HTTP " +
+                                        response.status
+                                    );
+
+                                }
+
+
+                                menu.remove();
+
+                                await loadConversations();
+
+                            }
+                            catch (error) {
+
+                                console.error(
+                                    "Erreur renommage conversation :",
+                                    error
+                                );
+
+                                alert(
+                                    "Impossible de renommer la conversation."
+                                );
+
+                            }
+
+                        }
                     );
 
-                    alert(
-                        "Impossible de supprimer la conversation."
+
+                    const separator =
+                        document.createElement(
+                            "div"
+                        );
+
+                    separator.className =
+                        "conversation-menu-separator";
+
+
+                    const deleteButtonMenu =
+                        document.createElement(
+                            "button"
+                        );
+
+                    deleteButtonMenu.innerText =
+                        "🗑️ Supprimer";
+
+
+                    deleteButtonMenu.addEventListener(
+                        "click",
+                        async function(event) {
+
+                            event.stopPropagation();
+
+                            menu.remove();
+
+
+                            const confirmed =
+                                confirm(
+                                    "Supprimer cette conversation ?"
+                                );
+
+
+                            if (!confirmed) {
+
+                                return;
+
+                            }
+
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        "/api/conversations/" +
+                                        conversation.id,
+                                        {
+                                            method: "DELETE"
+                                        }
+                                    );
+
+
+                                if (!response.ok) {
+
+                                    throw new Error(
+                                        "Erreur HTTP " +
+                                        response.status
+                                    );
+
+                                }
+
+
+                                if (
+                                    conversationId ===
+                                    conversation.id
+                                ) {
+
+                                    clearChat();
+
+                                }
+
+
+                                await loadConversations();
+
+                            }
+                            catch (error) {
+
+                                console.error(
+                                    "Erreur suppression conversation :",
+                                    error
+                                );
+
+                                alert(
+                                    "Impossible de supprimer la conversation."
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                    menu.appendChild(
+                        renameButton
+                    );
+
+                    menu.appendChild(
+                        separator
+                    );
+
+                    menu.appendChild(
+                        deleteButtonMenu
+                    );
+
+
+                    row.appendChild(
+                        menu
                     );
 
                 }
-
-            }
-        );
+            );
 
 
-        menu.appendChild(
-            renameButton
-        );
+            row.appendChild(
+                button
+            );
 
-        menu.appendChild(
-            separator
-        );
-
-        menu.appendChild(
-            deleteButtonMenu
-        );
+            row.appendChild(
+                deleteButton
+            );
 
 
-        row.appendChild(
-            menu
-        );
+            conversationList.appendChild(
+                row
+            );
 
-    }
-);
-
-                row.appendChild(
-                    button
-                );
-
-                row.appendChild(
-                    deleteButton
-                );
+        }
 
 
-                conversationList.appendChild(
-                    row
-                );
+        if (
+            groups.today.length > 0
+        ) {
 
-            }
-        );
+            createGroupTitle(
+                "Aujourd’hui"
+            );
+
+            groups.today.forEach(
+                renderConversation
+            );
+
+        }
+
+
+        if (
+            groups.yesterday.length > 0
+        ) {
+
+            createGroupTitle(
+                "Hier"
+            );
+
+            groups.yesterday.forEach(
+                renderConversation
+            );
+
+        }
+
+
+        if (
+            groups.last7days.length > 0
+        ) {
+
+            createGroupTitle(
+                "7 derniers jours"
+            );
+
+            groups.last7days.forEach(
+                renderConversation
+            );
+
+        }
+
+
+        if (
+            groups.older.length > 0
+        ) {
+
+            createGroupTitle(
+                "Plus ancien"
+            );
+
+            groups.older.forEach(
+                renderConversation
+            );
+
+        }
+        
     }
     catch (error) {
 

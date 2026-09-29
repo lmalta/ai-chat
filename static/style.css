@@ -54,18 +54,25 @@ body {
 .conversation-sidebar h1 {
     text-align: left;
 
-    font-size: 20px;
+    font-size: 17px;
+    font-weight: 600;
 
-    margin: 0 0 25px 0;
+    margin: 2px 4px 20px 4px;
+
+    color: #222;
 }
 
 
 .conversation-sidebar h2 {
-    margin: 25px 0 12px 0;
+    margin: 24px 4px 8px 4px;
 
-    font-size: 13px;
+    font-size: 11px;
+    font-weight: 600;
 
     text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    color: #777;
 }
 
 
@@ -73,21 +80,7 @@ body {
    Nouvelle conversation
    ========================= */
 
-.new-conversation-button {
-    width: 100%;
-
-    padding: 10px 12px;
-
-    border: 1px solid #ccc;
-
-    border-radius: 8px;
-
-    background: white;
-
-    cursor: pointer;
-
-    font-size: 14px;
-}
+.new-conversation-button
 
 
 .new-conversation-button:hover {
