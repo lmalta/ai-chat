@@ -516,6 +516,16 @@ button.secondary:hover {
     border-color: #c8c8c8;
 }
 
+button#stopButton:not(:disabled) {
+    background: #f5f5f5;
+    border-color: #b5b5b5;
+    font-weight: 600;
+}
+
+button#stopButton:not(:disabled):hover {
+    background: #eeeeee;
+    border-color: #999;
+}
 
 button:disabled {
     cursor: not-allowed;
