@@ -438,6 +438,19 @@ button:disabled {
     font-size: 28px;
 }
 
+/* =========================
+   Liens Markdown
+   ========================= */
+
+.message a {
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.message a:hover {
+    text-decoration: none;
+}
 
 /* =========================
    Mobile
