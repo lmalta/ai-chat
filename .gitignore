@@ -23,3 +23,7 @@ conf/etc/
 
 # Base de données locale
 ai_chat.db
+# Fichiers de travail locaux
+memo.md
+app copy.py
+conf/conf ufw.md
