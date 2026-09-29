@@ -485,6 +485,18 @@ textarea:focus {
         0 0 0 2px rgba(0, 0, 0, 0.04);
 }
 
+.input-area {
+    padding-top: 10px;
+}
+
+.input-area .buttons {
+    align-items: center;
+}
+
+.input-area .buttons button {
+    margin-top: 8px;
+}
+
 #model {
     padding: 7px 10px;
     font-size: 14px;
