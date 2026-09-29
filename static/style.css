@@ -282,8 +282,20 @@ body {
 .message h1,
 .message h2,
 .message h3 {
-    margin-top: 10px;
+    margin-top: 18px;
     margin-bottom: 10px;
+}
+
+.message h1 {
+    font-size: 24px;
+}
+
+.message h2 {
+    font-size: 20px;
+}
+
+.message h3 {
+    font-size: 17px;
 }
 
 .message ul,
@@ -465,6 +477,38 @@ button:disabled {
     background: #f5f7fa;
 
     color: #555;
+}
+
+/* =========================
+   Tableaux Markdown
+   ========================= */
+
+.message table {
+    width: 100%;
+    margin: 15px 0;
+
+    border-collapse: collapse;
+
+    overflow: hidden;
+}
+
+.message th,
+.message td {
+    padding: 10px 12px;
+
+    border: 1px solid #ddd;
+
+    text-align: left;
+}
+
+.message th {
+    background: #f5f7fa;
+
+    font-weight: 600;
+}
+
+.message tr:nth-child(even) {
+    background: #fafafa;
 }
 
 /* =========================
