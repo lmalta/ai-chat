@@ -108,6 +108,15 @@ function renderMarkdown(content) {
         marked.parse(content || "");
 
     container
+        .querySelectorAll("a")
+        .forEach(function(link) {
+
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+        });
+        
+    container
         .querySelectorAll("pre code")
         .forEach(function(block) {
 
