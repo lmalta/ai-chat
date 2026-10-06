@@ -11,6 +11,7 @@ from flask import (
 from functools import wraps
 from werkzeug.security import check_password_hash
 import json
+import base64
 
 from config import Config
 from ollama_client import OllamaClient
@@ -483,6 +484,7 @@ def ask():
     conversation_id = data.get("conversation_id")
 
     document_id = data.get("document_id")
+    image_id = data.get("image_id")
 
     # Messages destinés à Ollama.
     # On conserve "messages" intact pour les validations
@@ -553,6 +555,55 @@ def ask():
                 f"Question de l'utilisateur : "
                 f"{user_content}"
             )
+
+    if image_id is not None:
+
+        image_files = list(
+            IMAGE_UPLOAD_DIR.glob(
+                f"{image_id}.*"
+            )
+        )
+
+        if not image_files:
+            return jsonify({
+                "error": "Image introuvable"
+            }), 404
+
+        image_path = image_files[0]
+
+        try:
+
+            with open(image_path, "rb") as f:
+                image_data = base64.b64encode(
+                    f.read()
+                ).decode("utf-8")
+
+        except Exception as e:
+
+            return jsonify({
+                "error": (
+                    "Impossible de lire l'image : "
+                    f"{e}"
+                )
+            }), 500
+
+        if (
+            ollama_messages
+            and ollama_messages[-1].get("role") == "user"
+        ):
+
+            user_content = ollama_messages[-1].get(
+                "content",
+                ""
+            )
+
+            ollama_messages[-1] = {
+                "role": "user",
+                "content": user_content,
+                "images": [
+                    image_data
+                ]
+            }
 
     if conversation_id is not None:
         user_message = messages[-1]

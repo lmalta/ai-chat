@@ -6,6 +6,11 @@ L'application permet d'utiliser des modèles de langage exécutés localement, a
 
 Aucune API cloud n'est nécessaire pour générer les réponses : les modèles sont fournis par une instance Ollama accessible par l'application.
 
+## 🖥️ Interface
+
+![Capture d'écran de l'interface de chat](img/screen.png)
+
+
 ## ✨ Fonctionnalités
 
 * 💬 Interface web de chat
@@ -22,6 +27,10 @@ Aucune API cloud n'est nécessaire pour générer les réponses : les modèles s
 * 📝 Rendu Markdown des réponses
 * 💻 Interface adaptée aux écrans desktop et mobiles
 * 🔌 API HTTP interne pour les conversations et la génération
+* 📄 Import et analyse de documents PDF
+* 📊 Import et analyse de fichiers Excel (XLSX)
+* 🔍 Questions basées sur le contenu des documents importés
+* 🖼️ Import et analyse d'images avec un modèle de vision
 
 ## 🧠 Modèles
 
@@ -29,11 +38,48 @@ Les modèles autorisés sont actuellement :
 
 * `qwen3:8b`
 * `qwen3:14b`
+* `qwen3-vl:8b`
+
+`qwen3-vl:8b` est utilisé pour l'analyse des images.
 
 Les modèles sont exécutés par **Ollama**.
 
 La liste des modèles autorisés peut être modifiée dans `config.py`.
 
+## 📄 Documents et images
+
+L'application permet d'importer des documents directement depuis l'interface de chat.
+
+### Documents
+
+Les formats actuellement supportés sont :
+
+* PDF
+* XLSX (Excel)
+
+Les documents sont stockés localement et leur contenu est extrait afin de pouvoir poser des questions directement dessus.
+
+Pour les PDF contenant des pages scannées, un traitement OCR permet également d'extraire le texte.
+
+### Images
+
+Les formats actuellement supportés sont :
+
+* JPG
+* JPEG
+* PNG
+* WEBP
+
+Les images sont envoyées au modèle de vision `qwen3-vl:8b`, qui peut analyser leur contenu visuel et textuel.
+
+Par exemple, une image d'un CV peut être utilisée pour demander :
+
+* les technologies mentionnées
+* les entreprises présentes dans les expériences
+* les informations visibles dans le document
+* les éléments qui ne sont pas présents dans l'image
+
+Les fichiers importés sont stockés localement dans `data/` et les données runtime ne sont pas versionnées dans Git.
 ## 📊 Statistiques
 
 Après chaque génération, l'application peut récupérer et afficher les statistiques fournies par Ollama, notamment :
@@ -292,6 +338,8 @@ Quelques endpoints utilisés par l'application :
 | `GET`    | `/health`                 | Vérification de l'état de l'application |
 | `POST`   | `/ask`                    | Génération d'une réponse                |
 | `POST`   | `/cancel`                 | Arrêt d'une génération                  |
+| `POST`   | `/api/documents`          | Import et analyse d'un document        |
+| `POST`   | `/api/images`             | Import d'une image                     |
 | `GET`    | `/api/conversations`      | Liste des conversations                 |
 | `POST`   | `/api/conversations`      | Création d'une conversation             |
 | `GET`    | `/api/conversations/<id>` | Lecture d'une conversation              |

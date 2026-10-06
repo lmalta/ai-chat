@@ -2,6 +2,7 @@ let messages = [];
 let conversationId = null;
 let abortController = null;
 let currentDocumentId = null;
+let currentImageId = null;
 
 const chat =              document.getElementById("chat");
 const promptInput =       document.getElementById("prompt");
@@ -16,7 +17,9 @@ const closeStats =        document.getElementById("closeStats");
 const documentInput =     document.getElementById("documentInput");
 const documentButton =   document.getElementById("documentButton");
 const documentStatus =   document.getElementById("documentStatus");
-
+const imageInput =        document.getElementById("imageInput");
+const imageButton =       document.getElementById("imageButton");
+const imageStatus =       document.getElementById("imageStatus");
 
 // =========================
 // Copie compatible HTTP
@@ -1074,10 +1077,9 @@ async function sendMessage() {
                     body: JSON.stringify({
                         messages: messages,
                         model: model,
-                        conversation_id:
-                            conversationId,
-                        document_id:
-                            currentDocumentId
+                        conversation_id: conversationId,
+                        document_id: currentDocumentId,
+                        image_id: currentImageId
                     })
                 }
             );
@@ -1543,6 +1545,99 @@ documentInput.addEventListener(
         } finally {
 
             documentButton.disabled = false;
+
+        }
+
+    }
+);
+
+imageButton.addEventListener(
+    "click",
+    () => {
+        imageInput.click();
+    }
+);
+
+
+imageInput.addEventListener(
+    "change",
+    async () => {
+
+        const file =
+            imageInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+
+        imageStatus.textContent =
+            "⏳ Envoi de l'image...";
+
+        imageButton.disabled = true;
+
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "file",
+                file
+            );
+
+
+            const response =
+                await fetch(
+                    "/api/images",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Erreur lors de l'upload"
+                );
+
+            }
+
+
+            currentImageId =
+                data.image_id;
+
+
+            imageStatus.textContent =
+                `🖼️ ${data.filename} — Image prête ✓`;
+
+
+        } catch (error) {
+
+            console.error(
+                "Erreur upload image:",
+                error
+            );
+
+
+            currentImageId = null;
+
+
+            imageStatus.textContent =
+                `❌ ${error.message}`;
+
+
+        } finally {
+
+            imageButton.disabled = false;
 
         }
 

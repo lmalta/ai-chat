@@ -132,34 +132,49 @@
                      UPLOAD DOCUMENT
                      ========================= -->
 
-                <div class="document-upload">
+            <div class="document-upload">
 
+                <input
+                    type="file"
+                    id="documentInput"
+                    accept=".pdf,.xlsx"
+                    hidden
+                >
 
-                    <input
-                        type="file"
-                        id="documentInput"
-                        accept=".pdf,.xlsx"
-                        hidden
-                    >
+                <button
+                    type="button"
+                    id="documentButton"
+                    class="secondary"
+                >
+                    📎 Ajouter un document
+                </button>
 
+                <span
+                    id="documentStatus"
+                    class="document-status"
+                ></span>
 
-                    <button
-                        type="button"
-                        id="documentButton"
-                        class="secondary"
-                    >
-                        📎 Ajouter un document
-                    </button>
+                <input
+                    type="file"
+                    id="imageInput"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    hidden
+                >
 
+                <button
+                    type="button"
+                    id="imageButton"
+                    class="secondary"
+                >
+                    🖼️ Ajouter une image
+                </button>
 
-                    <span
-                        id="documentStatus"
-                        class="document-status"
-                    ></span>
+                <span
+                    id="imageStatus"
+                    class="document-status"
+                ></span>
 
-
-                </div>
-
+            </div>
 
                 <textarea
                     id="prompt"
