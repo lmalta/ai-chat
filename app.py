@@ -26,6 +26,11 @@ from conversations import (
     delete_conversation,
     update_conversation_title,
 )
+from pathlib import Path
+from uuid import uuid4
+from werkzeug.utils import secure_filename
+
+from document_loader import load_document
 
 app = Flask(__name__)
 init_db()
@@ -137,8 +142,8 @@ def cancel_generation():
     return jsonify({
         "cancelled": cancelled
     })
-    
-    
+
+
 @app.route("/health")
 def health():
 
@@ -165,7 +170,7 @@ def api_get_conversation(conversation_id):
     conversation["messages"] = get_messages(conversation_id)
 
     return jsonify(conversation)
-    
+
 @app.route(
     "/api/conversations/<int:conversation_id>",
     methods=["DELETE"]
@@ -228,7 +233,7 @@ def api_update_conversation(conversation_id):
         "success": True,
         "title": title
     })
-            
+
 @app.route("/api/conversations", methods=["POST"])
 @login_required
 def api_create_conversation():
@@ -258,6 +263,110 @@ def api_create_conversation():
         "id": conversation_id,
         "title": title
     }), 201
+
+# ============================================================
+# DOCUMENTS
+# ============================================================
+
+DOCUMENT_UPLOAD_DIR = Path("/tmp/ai-chat-documents")
+
+SUPPORTED_DOCUMENT_EXTENSIONS = {
+    ".pdf",
+    ".xlsx",
+}
+
+MAX_DOCUMENT_SIZE = 20 * 1024 * 1024  # 20 MB
+
+
+@app.route("/api/documents", methods=["POST"])
+@login_required
+def upload_document():
+
+    file = request.files.get("file")
+
+    if file is None:
+        return jsonify({
+            "error": "Aucun fichier fourni"
+        }), 400
+
+    if not file.filename:
+        return jsonify({
+            "error": "Nom de fichier invalide"
+        }), 400
+
+    filename = secure_filename(file.filename)
+
+    if not filename:
+        return jsonify({
+            "error": "Nom de fichier invalide"
+        }), 400
+
+    extension = Path(filename).suffix.lower()
+
+    if extension not in SUPPORTED_DOCUMENT_EXTENSIONS:
+        return jsonify({
+            "error": (
+                "Format non supporté. "
+                "Formats acceptés : PDF, XLSX"
+            )
+        }), 400
+
+    DOCUMENT_UPLOAD_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    document_id = uuid4().hex
+
+    document_path = (
+        DOCUMENT_UPLOAD_DIR
+        / f"{document_id}{extension}"
+    )
+
+    try:
+
+        file.save(document_path)
+
+        file_size = document_path.stat().st_size
+
+        if file_size > MAX_DOCUMENT_SIZE:
+            document_path.unlink(missing_ok=True)
+
+            return jsonify({
+                "error": "Fichier trop volumineux. Maximum : 20 MB"
+            }), 413
+
+        result = load_document(document_path)
+
+        response = {
+            "document_id": document_id,
+            "filename": result["filename"],
+            "extension": result["extension"],
+            "type": result["type"],
+            "characters": len(result["text"]),
+            "preview": result["text"][:1000],
+        }
+
+        if "pages" in result:
+            response["pages"] = result["pages"]
+
+        if "sheets" in result:
+            response["sheets"] = result["sheets"]
+
+        return jsonify(response), 200
+
+    except Exception as e:
+
+        document_path.unlink(missing_ok=True)
+
+        print(
+            f"[DOCUMENT ERROR] "
+            f"{type(e).__name__}: {e}"
+        )
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 # ============================================================
 # CHAT
@@ -295,7 +404,7 @@ def ask():
             user_message.get("content", ""),
             model
         )
-        
+
         # =========================
         # Validation modèle
         # =========================
@@ -314,7 +423,7 @@ def ask():
             return jsonify({
                 "error": "conversation_id invalide"
             }), 400
-            
+
     if conversation_id is not None:
         if not conversation_exists(conversation_id):
             return jsonify({
@@ -367,7 +476,7 @@ def ask():
     # =========================
     # Génération streaming
     # =========================
-    
+
     def generate():
         full_response = []
 
@@ -429,7 +538,7 @@ def ask():
                 {"type": "error", "error": str(e)},
                 ensure_ascii=False
             ) + "\n"
-            
+
     return Response(
         generate(),
         mimetype="application/x-ndjson",
