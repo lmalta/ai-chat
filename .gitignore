@@ -27,3 +27,10 @@ ai_chat.db
 memo.md
 app copy.py
 conf/conf ufw.md
+
+# Données runtime de l'application
+data/*
+!data/.gitkeep
+!data/documents/
+data/documents/*
+!data/documents/.gitkeep
