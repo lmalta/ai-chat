@@ -268,7 +268,7 @@ def api_create_conversation():
 # DOCUMENTS
 # ============================================================
 
-DOCUMENT_UPLOAD_DIR = Path("/tmp/ai-chat-documents")
+DOCUMENT_UPLOAD_DIR = Path("/home/ubuntu/ai-chat/data/documents")
 
 SUPPORTED_DOCUMENT_EXTENSIONS = {
     ".pdf",
