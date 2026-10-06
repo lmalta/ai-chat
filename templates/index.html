@@ -128,6 +128,39 @@
             <div class="input-area">
 
 
+                <!-- =========================
+                     UPLOAD DOCUMENT
+                     ========================= -->
+
+                <div class="document-upload">
+
+
+                    <input
+                        type="file"
+                        id="documentInput"
+                        accept=".pdf,.xlsx"
+                        hidden
+                    >
+
+
+                    <button
+                        type="button"
+                        id="documentButton"
+                        class="secondary"
+                    >
+                        📎 Ajouter un document
+                    </button>
+
+
+                    <span
+                        id="documentStatus"
+                        class="document-status"
+                    ></span>
+
+
+                </div>
+
+
                 <textarea
                     id="prompt"
                     placeholder="Écris ton message..."
@@ -136,9 +169,11 @@
 
                 <div class="buttons">
 
+
                     <button id="sendButton">
                         Envoyer
                     </button>
+
 
                     <button
                         id="stopButton"
@@ -148,12 +183,14 @@
                         ⏹ Stop
                     </button>
 
+
                     <button
                         id="clearButton"
                         class="secondary"
                     >
                         Nouvelle conversation
                     </button>
+
 
                 </div>
 
@@ -203,22 +240,25 @@
     </div>
 
 
-<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css"
->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/github.min.css"
+    >
 
-<script
-    src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
-></script>
 
-<script
-    src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"
-></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+    ></script>
 
-<script
-    src="{{ url_for('static', filename='app.js') }}"
-></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"
+    ></script>
+
+
+    <script
+        src="{{ url_for('static', filename='app.js') }}"
+    ></script>
 
 
 </body>

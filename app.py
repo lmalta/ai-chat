@@ -276,6 +276,7 @@ SUPPORTED_DOCUMENT_EXTENSIONS = {
 }
 
 MAX_DOCUMENT_SIZE = 20 * 1024 * 1024  # 20 MB
+MAX_DOCUMENT_CONTEXT_LENGTH = 30_000
 
 
 @app.route("/api/documents", methods=["POST"])
@@ -390,6 +391,78 @@ def ask():
     )
     conversation_id = data.get("conversation_id")
 
+    document_id = data.get("document_id")
+
+    # Messages destinés à Ollama.
+    # On conserve "messages" intact pour les validations
+    # et l'historique de conversation.
+    ollama_messages = [
+        message.copy()
+        for message in messages
+    ]
+
+    if document_id is not None:
+
+        document_files = list(
+            DOCUMENT_UPLOAD_DIR.glob(
+                f"{document_id}.*"
+            )
+        )
+
+        if not document_files:
+            return jsonify({
+                "error": "Document introuvable"
+            }), 404
+
+        document_path = document_files[0]
+
+        try:
+
+            document_result = load_document(
+                document_path
+            )
+
+            document_text = document_result["text"]
+
+        except Exception as e:
+
+            return jsonify({
+                "error": (
+                    "Impossible de lire le document : "
+                    f"{e}"
+                )
+            }), 500
+
+        if len(document_text) > MAX_DOCUMENT_CONTEXT_LENGTH:
+            return jsonify({
+                "error": (
+                    "Document trop volumineux pour "
+                    "le contexte actuel."
+                )
+            }), 413
+
+        if (
+            ollama_messages
+            and ollama_messages[-1].get("role") == "user"
+        ):
+
+            user_content = ollama_messages[-1].get(
+                "content",
+                ""
+            )
+
+            ollama_messages[-1]["content"] = (
+                "Voici le contenu du document fourni "
+                "par l'utilisateur.\n\n"
+                "--- DÉBUT DU DOCUMENT ---\n"
+                f"{document_text}\n"
+                "--- FIN DU DOCUMENT ---\n\n"
+                "Réponds à la question de l'utilisateur "
+                "en te basant sur ce document.\n\n"
+                f"Question de l'utilisateur : "
+                f"{user_content}"
+            )
+
     if conversation_id is not None:
         user_message = messages[-1]
 
@@ -483,7 +556,7 @@ def ask():
         try:
             for data in ollama.chat(
                 model=model,
-                messages=messages,
+                messages=ollama_messages,
                 temperature=Config.TEMPERATURE
             ):
                 content = data.get("message", {}).get("content", "")

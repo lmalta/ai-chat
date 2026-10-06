@@ -1,6 +1,7 @@
 let messages = [];
 let conversationId = null;
 let abortController = null;
+let currentDocumentId = null;
 
 const chat =              document.getElementById("chat");
 const promptInput =       document.getElementById("prompt");
@@ -12,7 +13,9 @@ const showStatsCheckbox = document.getElementById("showStats");
 const statsModal =        document.getElementById("statsModal");
 const statsContent =      document.getElementById("statsContent");
 const closeStats =        document.getElementById("closeStats");
-
+const documentInput =     document.getElementById("documentInput");
+const documentButton =   document.getElementById("documentButton");
+const documentStatus =   document.getElementById("documentStatus");
 
 
 // =========================
@@ -1072,7 +1075,9 @@ async function sendMessage() {
                         messages: messages,
                         model: model,
                         conversation_id:
-                            conversationId
+                            conversationId,
+                        document_id:
+                            currentDocumentId
                     })
                 }
             );
@@ -1451,3 +1456,95 @@ document.addEventListener(
 );
 
 loadConversations();
+documentButton.addEventListener(
+    "click",
+    () => {
+        documentInput.click();
+    }
+);
+
+
+documentInput.addEventListener(
+    "change",
+    async () => {
+
+        const file =
+            documentInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+
+        documentStatus.textContent =
+            "⏳ Envoi du document...";
+
+        documentButton.disabled = true;
+
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "file",
+                file
+            );
+
+
+            const response =
+                await fetch(
+                    "/api/documents",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Erreur lors de l'upload"
+                );
+
+            }
+
+
+            currentDocumentId =
+                data.document_id;
+
+
+            documentStatus.textContent =
+                `📄 ${data.filename} — Document prêt ✓`;
+
+
+        } catch (error) {
+
+            console.error(
+                "Erreur upload document:",
+                error
+            );
+
+
+            currentDocumentId = null;
+
+
+            documentStatus.textContent =
+                `❌ ${error.message}`;
+
+
+        } finally {
+
+            documentButton.disabled = false;
+
+        }
+
+    }
+);
