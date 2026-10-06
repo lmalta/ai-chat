@@ -278,6 +278,16 @@ SUPPORTED_DOCUMENT_EXTENSIONS = {
 MAX_DOCUMENT_SIZE = 20 * 1024 * 1024  # 20 MB
 MAX_DOCUMENT_CONTEXT_LENGTH = 30_000
 
+IMAGE_UPLOAD_DIR = Path("/home/ubuntu/ai-chat/data/images")
+
+SUPPORTED_IMAGE_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+}
+
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB
 
 @app.route("/api/documents", methods=["POST"])
 @login_required
@@ -362,6 +372,87 @@ def upload_document():
 
         print(
             f"[DOCUMENT ERROR] "
+            f"{type(e).__name__}: {e}"
+        )
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+# ============================================================
+# IMAGES
+# ============================================================
+
+@app.route("/api/images", methods=["POST"])
+@login_required
+def upload_image():
+
+    file = request.files.get("file")
+
+    if file is None:
+        return jsonify({
+            "error": "Aucune image fournie"
+        }), 400
+
+    if not file.filename:
+        return jsonify({
+            "error": "Nom de fichier invalide"
+        }), 400
+
+    filename = secure_filename(file.filename)
+
+    if not filename:
+        return jsonify({
+            "error": "Nom de fichier invalide"
+        }), 400
+
+    extension = Path(filename).suffix.lower()
+
+    if extension not in SUPPORTED_IMAGE_EXTENSIONS:
+        return jsonify({
+            "error": (
+                "Format non supporté. "
+                "Formats acceptés : JPG, JPEG, PNG, WEBP"
+            )
+        }), 400
+
+    IMAGE_UPLOAD_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    image_id = uuid4().hex
+
+    image_path = (
+        IMAGE_UPLOAD_DIR
+        / f"{image_id}{extension}"
+    )
+
+    try:
+
+        file.save(image_path)
+
+        file_size = image_path.stat().st_size
+
+        if file_size > MAX_IMAGE_SIZE:
+            image_path.unlink(missing_ok=True)
+
+            return jsonify({
+                "error": "Image trop volumineuse. Maximum : 10 MB"
+            }), 413
+
+        return jsonify({
+            "image_id": image_id,
+            "filename": filename,
+            "extension": extension,
+        }), 200
+
+    except Exception as e:
+
+        image_path.unlink(missing_ok=True)
+
+        print(
+            f"[IMAGE ERROR] "
             f"{type(e).__name__}: {e}"
         )
 

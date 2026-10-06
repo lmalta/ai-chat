@@ -16,6 +16,7 @@ class Config:
     MODELS = {
         "qwen3:8b",
         "qwen3:14b",
+        "qwen3-vl:8b",
     }
 
     DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "qwen3:14b")

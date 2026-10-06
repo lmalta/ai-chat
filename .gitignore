@@ -31,6 +31,11 @@ conf/conf ufw.md
 # Données runtime de l'application
 data/*
 !data/.gitkeep
+
 !data/documents/
 data/documents/*
 !data/documents/.gitkeep
+
+!data/images/
+data/images/*
+!data/images/.gitkeep
